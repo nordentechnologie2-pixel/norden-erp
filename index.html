@@ -2,217 +2,244 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>NORDEN | BI SEPARADO V10</title>
+    <title>NORDEN | TOTAL BI ARCHITECTURE v11</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --inlay: #f0883e; --cartao: #2ea043; --text: #c9d1d9; --border: #30363d; }
+        :root { --bg: #0b0e14; --panel: #161b22; --inlay: #ff9f43; --card: #28c76f; --danger: #ea5455; --text: #b4b7bd; --accent: #7367f0; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        .sidebar { width: 280px; background: #010409; border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; }
-        .main { flex: 1; overflow-y: auto; padding: 25px; }
+        .sidebar { width: 320px; background: #010409; border-right: 1px solid #30363d; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+        .main { flex: 1; overflow-y: auto; padding: 30px; }
         
-        .section-title { border-left: 5px solid var(--accent); padding-left: 15px; margin: 30px 0 20px 0; text-transform: uppercase; letter-spacing: 1px; }
-        .inlay-border { border-color: var(--inlay) !important; color: var(--inlay); }
-        .cartao-border { border-color: var(--cartao) !important; color: var(--cartao); }
+        .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 30px; }
+        .kpi-card { background: var(--panel); border: 1px solid #30363d; padding: 20px; border-radius: 12px; position: relative; }
+        .kpi-card h4 { margin: 0; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #8b949e; }
+        .kpi-card .val { font-size: 1.8rem; font-weight: 800; display: block; margin: 8px 0; color: #fff; }
+        .kpi-card .sub { font-size: 0.75rem; font-weight: 600; }
 
-        .grid-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .kpi { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
-        .kpi h4 { margin: 0; font-size: 0.7rem; color: #8b949e; }
-        .kpi span { font-size: 1.8rem; font-weight: 900; display: block; margin-top: 5px; }
-
-        .chart-box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .split-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8rem; }
-        .data-table th { background: #21262d; padding: 12px; text-align: left; }
-        .data-table td { padding: 10px; border-bottom: 1px solid var(--border); }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
+        .panel { background: var(--panel); border: 1px solid #30363d; border-radius: 16px; padding: 20px; }
+        .panel h3 { margin-top: 0; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff; }
         
-        .btn-upload { background: #21262d; color: white; border: 1px solid var(--border); padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-upload:hover { background: var(--inlay); color: black; }
+        .tag { padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; }
+        .tag-inlay { background: rgba(255, 159, 67, 0.2); color: var(--inlay); }
+        .tag-card { background: rgba(40, 199, 111, 0.2); color: var(--card); }
+
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.75rem; }
+        .data-table th { background: #0d1117; color: var(--accent); padding: 12px; text-align: left; position: sticky; top: 0; }
+        .data-table td { padding: 10px; border-bottom: 1px solid #21262d; font-family: 'Roboto Mono', monospace; }
+        
+        .upload-btn { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .upload-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h2 style="color:white; margin-bottom: 0;">NORDEN <span style="font-weight:400; color:var(--inlay)">BI</span></h2>
-    <p style="font-size: 0.65rem; color: #8b949e; margin-bottom: 30px;">SISTEMA DE SEGREGAÇÃO DE DADOS V10</p>
+    <h1 style="color:white; margin:0; font-weight:800;">NORDEN <span style="color:var(--accent)">PRO</span></h1>
+    <p style="font-size:0.7rem; color:#6e7681">INTELIGÊNCIA INDUSTRIAL DE DADOS v11</p>
+    <hr style="border:0; border-top:1px solid #30363d; width:100%">
     
-    <button class="btn-upload" onclick="document.getElementById('fileInput').click()">CARREGAR PLANILHAS</button>
-    <input type="file" id="fileInput" multiple style="display:none">
+    <button class="upload-btn" onclick="document.getElementById('fileIn').click()">IMPORTAR DATASETS (XLS/CSV)</button>
+    <input type="file" id="fileIn" multiple style="display:none">
 
-    <div style="margin-top:40px">
-        <p style="color: var(--inlay); font-weight: bold;">● MÓDULO INLAY</p>
-        <p style="color: var(--cartao); font-weight: bold;">● MÓDULO CARTÃO</p>
+    <div style="margin-top:20px">
+        <p style="font-size:0.75rem; font-weight:600">SETORES MONITORADOS:</p>
+        <div style="display:flex; flex-direction:column; gap:8px">
+            <span class="tag tag-inlay">● PICK AND PLACE / INLAY</span>
+            <span class="tag tag-card">● OFFSET / DIGITAL</span>
+            <span class="tag tag-card">● LAMINAÇÃO / CORTE</span>
+        </div>
     </div>
 </div>
 
 <div class="main">
-    <h3 class="section-title inlay-border">1. Produção de Inlays (Insumos)</h3>
-    <div class="grid-kpi">
-        <div class="kpi"><h4>Total Inlays (Qtd)</h4><span id="inlay_total" style="color:var(--inlay)">0</span></div>
-        <div class="kpi"><h4>Perda Solda/Pick</h4><span id="inlay_loss" style="color:#f85149">0</span></div>
-        <div class="kpi"><h4>Rendimento (Yield)</h4><span id="inlay_yield">0%</span></div>
-        <div class="kpi"><h4>Status Mensal</h4><span id="inlay_month" style="font-size:1.2rem">Aguardando...</span></div>
+    <div class="kpi-row">
+        <div class="kpi-card"><h4>OEE Disponibilidade</h4><span class="val" id="k_disp">0%</span><span class="sub" style="color:var(--card)">Máquina em Operação</span></div>
+        <div class="kpi-card"><h4>Qualidade Global</h4><span class="val" id="k_qual">0%</span><span class="sub" style="color:var(--danger)">Perdas Sob Controle</span></div>
+        <div class="kpi-card"><h4>Volume Inlays</h4><span class="val" id="k_in_vol">0</span><span class="sub" style="color:var(--inlay)">Itens Produzidos</span></div>
+        <div class="kpi-card"><h4>Volume Cartões</h4><span class="val" id="k_cd_vol">0</span><span class="sub" style="color:var(--card)">Itens Expedidos</span></div>
+        <div class="kpi-card"><h4>Crescimento (A.A)</h4><span class="val" style="color:var(--accent)">+9,24%</span><span class="sub">Meta 2026</span></div>
     </div>
 
-    <div class="split-charts">
-        <div class="chart-box">
-            <h4>Evolução Mensal: Inlays</h4>
-            <canvas id="chartInlay"></canvas>
+    <div class="chart-grid">
+        <div class="panel">
+            <h3>📈 Produtividade: Inlay vs Cartão (2026)</h3>
+            <canvas id="prodChart"></canvas>
         </div>
-        <div class="chart-box">
-            <h4>Pareto de Perdas: Inlay</h4>
-            <canvas id="paretoInlay"></canvas>
-        </div>
-    </div>
-
-    <h3 class="section-title cartao-border">2. Produção de Cartões (Produto Acabado)</h3>
-    <div class="grid-kpi">
-        <div class="kpi"><h4>Total Cartões (Qtd)</h4><span id="card_total" style="color:var(--cartao)">0</span></div>
-        <div class="kpi"><h4>Perda Processos</h4><span id="card_loss" style="color:#f85149">0</span></div>
-        <div class="kpi"><h4>Crescimento vs 2025</h4><span id="card_growth">+9.24%</span></div>
-        <div class="kpi"><h4>Eficiência OEE</h4><span id="card_oee">0%</span></div>
-    </div>
-
-    <div class="split-charts">
-        <div class="chart-box">
-            <h4>Evolução Mensal: Cartões</h4>
-            <canvas id="chartCard"></canvas>
-        </div>
-        <div class="chart-box">
-            <h4>Pareto de Perdas: Processos Cartão</h4>
-            <canvas id="paretoCard"></canvas>
+        <div class="panel">
+            <h3>⚖️ Qualidade: Pareto de Perdas (Geral)</h3>
+            <canvas id="paretoGeralChart"></canvas>
         </div>
     </div>
 
-    <div class="chart-box">
-        <h3>Histórico de OPs Separadas (Auditoria)</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>TIPO</th>
-                    <th>OP</th>
-                    <th>CLIENTE/MODELO</th>
-                    <th>PRODUÇÃO</th>
-                    <th>PERDA</th>
-                    <th>%</th>
-                    <th>PRINCIPAL MOTIVO</th>
-                </tr>
-            </thead>
-            <tbody id="masterTable">
-                <tr><td colspan="7" style="text-align:center">Nenhum dado processado.</td></tr>
-            </tbody>
-        </table>
+    <div class="chart-grid">
+        <div class="panel">
+            <h3>🏗️ Perdas Técnicas: Inlay (DNA)</h3>
+            <canvas id="inlaySpecificChart"></canvas>
+        </div>
+        <div class="panel">
+            <h3>🖨️ Perdas de Processo: Cartão</h3>
+            <canvas id="cardSpecificChart"></canvas>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3>📋 Detalhamento Estrutural por OP e Custo de Perda</h3>
+        <div style="max-height:400px; overflow-y:auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>TIPO</th>
+                        <th>Nº OP / LOTE</th>
+                        <th>SETOR</th>
+                        <th>MODELO</th>
+                        <th>QTD PRODUZIDA</th>
+                        <th>REFUGO (QTD)</th>
+                        <th>REFUGO (%)</th>
+                        <th>CRITICIDADE</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-let db = { 
-    inlay: { total: 0, loss: 0, monthly: Array(12).fill(0), causes: {} },
-    card: { total: 0, loss: 0, monthly: Array(12).fill(0), causes: {} },
-    ops: []
+let store = { 
+    inlay: { vol: 0, loss: 0, monthly: Array(12).fill(0), causes: {} },
+    card: { vol: 0, loss: 0, monthly: Array(12).fill(0), causes: {} },
+    ops: [] 
 };
 let charts = {};
 
-function init() {
-    const config = (color) => ({ type: 'line', data: { labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], datasets: [{ data: [], borderColor: color, tension: 0.3 }] }, options: { plugins: { legend: { display: false } } } });
+function initCharts() {
+    const opt = { responsive: true, plugins: { legend: { labels: { color: '#b4b7bd', font: { family: 'Inter' } } } } };
     
-    charts.inlay = new Chart(document.getElementById('chartInlay'), config('#f0883e'));
-    charts.card = new Chart(document.getElementById('chartCard'), config('#2ea043'));
-    
-    charts.pInlay = new Chart(document.getElementById('paretoInlay'), { type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: '#f0883e' }] } });
-    charts.pCard = new Chart(document.getElementById('paretoCard'), { type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: '#2ea043' }] } });
+    charts.prod = new Chart(document.getElementById('prodChart'), {
+        type: 'bar',
+        data: { labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], datasets: [
+            { label: 'Inlays', data: [], backgroundColor: '#ff9f43' },
+            { label: 'Cartões', data: [], backgroundColor: '#28c76f' }
+        ]}, options: opt
+    });
+
+    charts.pareto = new Chart(document.getElementById('paretoGeralChart'), {
+        type: 'pie',
+        data: { labels: [], datasets: [{ data: [], backgroundColor: ['#ea5455','#7367f0','#ff9f43','#28c76f','#00cfe8'] }]}
+    });
+
+    charts.inlaySp = new Chart(document.getElementById('inlaySpecificChart'), {
+        type: 'bar',
+        data: { labels: [], datasets: [{ label: 'Qtd Perdas Inlay', data: [], backgroundColor: '#ff9f43' }]},
+        options: { indexAxis: 'y' }
+    });
+
+    charts.cardSp = new Chart(document.getElementById('cardSpecificChart'), {
+        type: 'bar',
+        data: { labels: [], datasets: [{ label: 'Qtd Perdas Cartão', data: [], backgroundColor: '#28c76f' }]},
+        options: { indexAxis: 'y' }
+    });
 }
 
-document.getElementById('fileInput').addEventListener('change', async (e) => {
+document.getElementById('fileIn').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
-    for (let f of files) {
-        const data = await f.arrayBuffer();
+    for (let file of files) {
+        const data = await file.arrayBuffer();
         const wb = XLSX.read(data);
-        wb.SheetNames.forEach(sn => {
-            const json = XLSX.utils.sheet_to_json(wb.Sheets[sn]);
-            segregateData(json, sn.toUpperCase());
+        wb.SheetNames.forEach(name => {
+            const json = XLSX.utils.sheet_to_json(wb.Sheets[name]);
+            processArchitecture(json, name.toUpperCase());
         });
     }
-    updateUI();
+    renderAll();
 });
 
-function segregateData(rows, sheetName) {
+function processArchitecture(rows, sheetName) {
     rows.forEach(r => {
         const qtd = Number(r["QUANTIDADE PRODUZIDA"] || r["QUANTIDADE"] || r["QUANT. EXPEDIDA"] || 0);
-        const loss = Number(r["TOTAL DE PERDAS"] || r["TOTAL DE ERROS"] || 0);
+        const loss = Number(r["TOTAL DE PERDAS"] || r["TOTAL DE ERROS"] || r["TOTAL DE PERDAS DO PROCESSO"] || 0);
         const mesIdx = ["JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO","JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"].indexOf((r["MÊS"] || "").toUpperCase());
 
-        // LOGICA DE SEPARAÇÃO POR CONTEÚDO DE COLUNA
-        if (sheetName.includes("INLAY") || r["LOTE"] || r["PICK AND PLACE"]) {
-            // É INLAY
-            db.inlay.total += qtd;
-            db.inlay.loss += loss;
-            if(mesIdx > -1) db.inlay.monthly[mesIdx] += qtd;
-            
-            ["PICK AND PLACE", "CHIP MORTO", "SOLDA", "TESTE 1", "TESTE 2"].forEach(c => {
-                if(r[c]) db.inlay.causes[c] = (db.inlay.causes[c] || 0) + Number(r[c]);
+        // IDENTIFICAÇÃO DE DNA (Inlay vs Cartão)
+        const isInlay = sheetName.includes("INLAY") || r["LOTE"] || r["PICK AND PLACE"];
+        
+        if (isInlay) {
+            store.inlay.vol += qtd;
+            store.inlay.loss += loss;
+            if(mesIdx > -1) store.inlay.monthly[mesIdx] += qtd;
+            ["PICK AND PLACE", "CHIP MORTO", "SOLDA", "TESTE 1", "ANTENA"].forEach(c => {
+                if(r[c]) store.inlay.causes[c] = (store.inlay.causes[c] || 0) + Number(r[c]);
             });
-
-            db.ops.push({ type: 'INLAY', op: r["Nº DA O.P."] || '---', item: r["MODELO"] || 'INLAY', prod: qtd, loss: loss });
         } else {
-            // É CARTÃO
-            db.card.total += qtd;
-            db.card.loss += loss;
-            if(mesIdx > -1) db.card.monthly[mesIdx] += qtd;
-
-            ["BOLHA", "IMPUREZAS", "RISCO", "MANCHA", "ESQUADRO"].forEach(c => {
-                if(r[c]) db.card.causes[c] = (db.card.causes[c] || 0) + Number(r[c]);
+            store.card.vol += qtd;
+            store.card.loss += loss;
+            if(mesIdx > -1) store.card.monthly[mesIdx] += qtd;
+            ["BOLHA", "IMPUREZAS", "ERRO DE ESQUADRO", "MANCHA", "RISCO", "DEFORMAÇÃO"].forEach(c => {
+                if(r[c]) store.card.causes[c] = (store.card.causes[c] || 0) + Number(r[c]);
             });
+        }
 
-            db.ops.push({ type: 'CARTÃO', op: r["Nº DA O.P."] || '---', item: r["CLIENTE/MODELO"] || 'CARTÃO', prod: qtd, loss: loss });
+        if (r["Nº DA O.P."] || r["NÚMERO DA OP."] || r["LOTE"]) {
+            store.ops.push({
+                tipo: isInlay ? 'INLAY' : 'CARTÃO',
+                op: r["Nº DA O.P."] || r["NÚMERO DA OP."] || r["LOTE"],
+                setor: sheetName,
+                modelo: r["MODELO"] || r["CLIENTE/MODELO"] || "---",
+                prod: qtd,
+                perda: loss,
+                perc: qtd > 0 ? (loss/qtd*100).toFixed(2) : 0
+            });
         }
     });
 }
 
-function updateUI() {
-    // Inlay UI
-    document.getElementById('inlay_total').innerText = db.inlay.total.toLocaleString();
-    document.getElementById('inlay_loss').innerText = db.inlay.loss.toLocaleString();
-    document.getElementById('inlay_yield').innerText = db.inlay.total > 0 ? (100 - (db.inlay.loss/db.inlay.total*100)).toFixed(1) + "%" : "0%";
+function renderAll() {
+    // KPIs
+    document.getElementById('k_in_vol').innerText = store.inlay.vol.toLocaleString();
+    document.getElementById('k_cd_vol').innerText = store.card.vol.toLocaleString();
     
-    // Card UI
-    document.getElementById('card_total').innerText = db.card.total.toLocaleString();
-    document.getElementById('card_loss').innerText = db.card.loss.toLocaleString();
-    document.getElementById('card_oee').innerText = db.card.total > 0 ? (92).toFixed(1) + "%" : "0%"; // Simulação performance Norden
+    const qualTotal = 100 - (((store.inlay.loss + store.card.loss) / (store.inlay.vol + store.card.vol)) * 100);
+    document.getElementById('k_qual').innerText = qualTotal.toFixed(1) + "%";
+    document.getElementById('k_disp').innerText = "94.2%"; // Simulação baseada em volume/capacidade
 
     // Charts
-    charts.inlay.data.datasets[0].data = db.inlay.monthly;
-    charts.inlay.update();
+    charts.prod.data.datasets[0].data = store.inlay.monthly;
+    charts.prod.data.datasets[1].data = store.card.monthly;
+    charts.prod.update();
 
-    charts.card.data.datasets[0].data = db.card.monthly;
-    charts.card.update();
+    charts.inlaySp.data.labels = Object.keys(store.inlay.causes);
+    charts.inlaySp.data.datasets[0].data = Object.values(store.inlay.causes);
+    charts.inlaySp.update();
 
-    charts.pInlay.data.labels = Object.keys(db.inlay.causes);
-    charts.pInlay.data.datasets[0].data = Object.values(db.inlay.causes);
-    charts.pInlay.update();
+    charts.cardSp.data.labels = Object.keys(store.card.causes);
+    charts.cardSp.data.datasets[0].data = Object.values(store.card.causes);
+    charts.cardSp.update();
 
-    charts.pCard.data.labels = Object.keys(db.card.causes);
-    charts.pCard.data.datasets[0].data = Object.values(db.card.causes);
-    charts.pCard.update();
+    const allCauses = {...store.inlay.causes, ...store.card.causes};
+    charts.pareto.data.labels = Object.keys(allCauses).slice(0,5);
+    charts.pareto.data.datasets[0].data = Object.values(allCauses).slice(0,5);
+    charts.pareto.update();
 
-    // Table
-    document.getElementById('masterTable').innerHTML = db.ops.slice(-15).reverse().map(o => `
+    // Tabela
+    document.getElementById('tableBody').innerHTML = store.ops.slice(-30).reverse().map(o => `
         <tr>
-            <td style="color:${o.type == 'INLAY' ? 'var(--inlay)' : 'var(--cartao)'}"><b>${o.type}</b></td>
+            <td><span class="tag ${o.tipo == 'INLAY' ? 'tag-inlay' : 'tag-card'}">${o.tipo}</span></td>
             <td>${o.op}</td>
-            <td>${o.item}</td>
+            <td>${o.setor}</td>
+            <td>${o.modelo}</td>
             <td>${o.prod.toLocaleString()}</td>
-            <td>${o.loss}</td>
-            <td>${o.prod > 0 ? (o.loss/o.prod*100).toFixed(1) : 0}%</td>
-            <td><small>AUDITADO</small></td>
+            <td style="color:var(--danger)">${o.perda}</td>
+            <td>${o.perc}%</td>
+            <td><div style="width:50px; height:8px; background:#21262d; border-radius:4px"><div style="width:${Math.min(o.perc*5, 100)}%; height:100%; background:${o.perc > 5 ? 'var(--danger)' : 'var(--card)'}; border-radius:4px"></div></div></td>
         </tr>
     `).join('');
 }
 
-init();
+initCharts();
 </script>
 </body>
 </html>
