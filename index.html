@@ -2,239 +2,259 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>NORDEN | TOTAL BI ARCHITECTURE v11</title>
+    <title>NORDEN | PROFESSIONAL INDUSTRIAL BI v12</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0b0e14; --panel: #161b22; --inlay: #ff9f43; --card: #28c76f; --danger: #ea5455; --text: #b4b7bd; --accent: #7367f0; }
+        :root { --bg: #05070a; --panel: #0d1117; --inlay: #ff9f43; --card: #2ea043; --danger: #f85149; --text: #e6edf3; --accent: #7d8590; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        .sidebar { width: 320px; background: #010409; border-right: 1px solid #30363d; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
-        .main { flex: 1; overflow-y: auto; padding: 30px; }
+        /* Sidebar Estilizada */
+        .sidebar { width: 340px; background: #010409; border-right: 1px solid #30363d; padding: 30px; display: flex; flex-direction: column; }
+        .main { flex: 1; overflow-y: auto; padding: 40px; background: radial-gradient(circle at top right, #0d1117, #05070a); }
         
-        .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 30px; }
-        .kpi-card { background: var(--panel); border: 1px solid #30363d; padding: 20px; border-radius: 12px; position: relative; }
-        .kpi-card h4 { margin: 0; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #8b949e; }
-        .kpi-card .val { font-size: 1.8rem; font-weight: 800; display: block; margin: 8px 0; color: #fff; }
-        .kpi-card .sub { font-size: 0.75rem; font-weight: 600; }
+        /* Painéis e Layout */
+        .grid-header { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .kpi-box { background: var(--panel); border: 1px solid #30363d; padding: 25px; border-radius: 12px; border-top: 4px solid var(--accent); }
+        .kpi-box h4 { margin: 0; font-size: 0.75rem; color: var(--accent); text-transform: uppercase; }
+        .kpi-box span { font-size: 2.2rem; font-weight: 900; display: block; margin-top: 10px; }
 
-        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
-        .panel { background: var(--panel); border: 1px solid #30363d; border-radius: 16px; padding: 20px; }
-        .panel h3 { margin-top: 0; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff; }
-        
-        .tag { padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; }
-        .tag-inlay { background: rgba(255, 159, 67, 0.2); color: var(--inlay); }
-        .tag-card { background: rgba(40, 199, 111, 0.2); color: var(--card); }
+        .chart-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+        .panel { background: var(--panel); border: 1px solid #30363d; border-radius: 16px; padding: 25px; }
+        .panel h3 { margin: 0 0 20px 0; font-size: 1.1rem; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
 
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.75rem; }
-        .data-table th { background: #0d1117; color: var(--accent); padding: 12px; text-align: left; position: sticky; top: 0; }
-        .data-table td { padding: 10px; border-bottom: 1px solid #21262d; font-family: 'Roboto Mono', monospace; }
+        /* Tabelas Profissionais */
+        .data-wrapper { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { text-align: left; background: #161b22; padding: 15px; color: var(--accent); position: sticky; top: 0; }
+        td { padding: 12px 15px; border-bottom: 1px solid #21262d; font-family: 'JetBrains Mono', monospace; }
         
-        .upload-btn { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .upload-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .type-tag { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; }
+        .tag-inlay { background: rgba(255, 159, 67, 0.15); color: var(--inlay); }
+        .tag-card { background: rgba(46, 160, 67, 0.15); color: var(--card); }
+
+        .btn-main { background: #238636; color: white; border: none; padding: 20px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 1rem; transition: 0.3s; }
+        .btn-main:hover { background: #2ea043; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h1 style="color:white; margin:0; font-weight:800;">NORDEN <span style="color:var(--accent)">PRO</span></h1>
-    <p style="font-size:0.7rem; color:#6e7681">INTELIGÊNCIA INDUSTRIAL DE DADOS v11</p>
-    <hr style="border:0; border-top:1px solid #30363d; width:100%">
+    <h2 style="letter-spacing:-1px">NORDEN <span style="font-weight:400">ENGINE</span></h2>
+    <p style="color:var(--accent); font-size:0.8rem; margin-top:-15px">Auditoria Industrial v12.0</p>
     
-    <button class="upload-btn" onclick="document.getElementById('fileIn').click()">IMPORTAR DATASETS (XLS/CSV)</button>
-    <input type="file" id="fileIn" multiple style="display:none">
-
-    <div style="margin-top:20px">
-        <p style="font-size:0.75rem; font-weight:600">SETORES MONITORADOS:</p>
-        <div style="display:flex; flex-direction:column; gap:8px">
-            <span class="tag tag-inlay">● PICK AND PLACE / INLAY</span>
-            <span class="tag tag-card">● OFFSET / DIGITAL</span>
-            <span class="tag tag-card">● LAMINAÇÃO / CORTE</span>
-        </div>
+    <div style="margin: 40px 0">
+        <button class="btn-main" onclick="document.getElementById('fileInput').click()">CARREGAR TODOS OS ARQUIVOS</button>
+        <input type="file" id="fileInput" multiple style="display:none">
+        <p style="font-size:0.7rem; color:var(--accent); margin-top:10px">Selecione PCP, Apontamentos e Produção de Inlay de uma vez.</p>
     </div>
+
+    <div id="fileList" style="font-size:0.7rem; color:var(--card)"></div>
 </div>
 
 <div class="main">
-    <div class="kpi-row">
-        <div class="kpi-card"><h4>OEE Disponibilidade</h4><span class="val" id="k_disp">0%</span><span class="sub" style="color:var(--card)">Máquina em Operação</span></div>
-        <div class="kpi-card"><h4>Qualidade Global</h4><span class="val" id="k_qual">0%</span><span class="sub" style="color:var(--danger)">Perdas Sob Controle</span></div>
-        <div class="kpi-card"><h4>Volume Inlays</h4><span class="val" id="k_in_vol">0</span><span class="sub" style="color:var(--inlay)">Itens Produzidos</span></div>
-        <div class="kpi-card"><h4>Volume Cartões</h4><span class="val" id="k_cd_vol">0</span><span class="sub" style="color:var(--card)">Itens Expedidos</span></div>
-        <div class="kpi-card"><h4>Crescimento (A.A)</h4><span class="val" style="color:var(--accent)">+9,24%</span><span class="sub">Meta 2026</span></div>
+    <div class="grid-header">
+        <div class="kpi-box" style="border-top-color: var(--inlay)">
+            <h4>Total Produção Inlays</h4>
+            <span id="kpi_inlay_vol" style="color:var(--inlay)">0</span>
+            <small id="kpi_inlay_loss" style="color:var(--danger)">0 perdas</small>
+        </div>
+        <div class="kpi-box" style="border-top-color: var(--card)">
+            <h4>Total Produção Cartões</h4>
+            <span id="kpi_card_vol" style="color:var(--card)">0</span>
+            <small id="kpi_card_loss" style="color:var(--danger)">0 perdas</small>
+        </div>
+        <div class="kpi-box">
+            <h4>Qualidade Média Inlay</h4>
+            <span id="kpi_inlay_yield">0%</span>
+        </div>
+        <div class="kpi-box">
+            <h4>OEE Global Cartões</h4>
+            <span id="kpi_card_oee">0%</span>
+        </div>
     </div>
 
-    <div class="chart-grid">
+    <div class="chart-section">
         <div class="panel">
-            <h3>📈 Produtividade: Inlay vs Cartão (2026)</h3>
+            <h3>📊 Volume Mensal (Inlays vs Cartões)</h3>
             <canvas id="prodChart"></canvas>
         </div>
         <div class="panel">
-            <h3>⚖️ Qualidade: Pareto de Perdas (Geral)</h3>
-            <canvas id="paretoGeralChart"></canvas>
+            <h3>📈 Eficiência de Processo (Yield %)</h3>
+            <canvas id="yieldChart"></canvas>
         </div>
     </div>
 
-    <div class="chart-grid">
+    <div class="chart-section">
         <div class="panel">
-            <h3>🏗️ Perdas Técnicas: Inlay (DNA)</h3>
-            <canvas id="inlaySpecificChart"></canvas>
+            <h3 style="color:var(--inlay)">⚠️ Pareto de Perdas: INLAYS</h3>
+            <canvas id="paretoInlay"></canvas>
         </div>
         <div class="panel">
-            <h3>🖨️ Perdas de Processo: Cartão</h3>
-            <canvas id="cardSpecificChart"></canvas>
+            <h3 style="color:var(--card)">⚠️ Pareto de Perdas: CARTÕES</h3>
+            <canvas id="paretoCard"></canvas>
         </div>
     </div>
 
     <div class="panel">
-        <h3>📋 Detalhamento Estrutural por OP e Custo de Perda</h3>
-        <div style="max-height:400px; overflow-y:auto">
-            <table class="data-table">
+        <h3>🔍 Auditoria Completa de Linhas e Colunas (Varredura Total)</h3>
+        <div class="data-wrapper">
+            <table>
                 <thead>
                     <tr>
                         <th>TIPO</th>
-                        <th>Nº OP / LOTE</th>
-                        <th>SETOR</th>
-                        <th>MODELO</th>
+                        <th>OP/LOTE</th>
+                        <th>MODELO/CLIENTE</th>
                         <th>QTD PRODUZIDA</th>
-                        <th>REFUGO (QTD)</th>
-                        <th>REFUGO (%)</th>
-                        <th>CRITICIDADE</th>
+                        <th>PERDA TOTAL</th>
+                        <th>% PERDA</th>
+                        <th>PRINCIPAL MOTIVO</th>
+                        <th>FONTE (ABA)</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody"></tbody>
+                <tbody id="auditTable">
+                    <tr><td colspan="8" style="text-align:center; padding:40px">Aguardando importação de dados industriais...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
 </div>
 
 <script>
-let store = { 
-    inlay: { vol: 0, loss: 0, monthly: Array(12).fill(0), causes: {} },
-    card: { vol: 0, loss: 0, monthly: Array(12).fill(0), causes: {} },
-    ops: [] 
+// Estrutura de dados robusta para separação total
+let dataStore = {
+    inlay: { vol: 0, loss: 0, monthly: Array(12).fill(0), details: {} },
+    card: { vol: 0, loss: 0, monthly: Array(12).fill(0), details: {} },
+    raw: []
 };
+
 let charts = {};
 
+// Função de inicialização dos gráficos
 function initCharts() {
-    const opt = { responsive: true, plugins: { legend: { labels: { color: '#b4b7bd', font: { family: 'Inter' } } } } };
-    
-    charts.prod = new Chart(document.getElementById('prodChart'), {
-        type: 'bar',
-        data: { labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], datasets: [
-            { label: 'Inlays', data: [], backgroundColor: '#ff9f43' },
-            { label: 'Cartões', data: [], backgroundColor: '#28c76f' }
-        ]}, options: opt
+    const config = (ctx, type = 'bar') => new Chart(ctx, {
+        type: type,
+        data: { labels: [], datasets: [] },
+        options: { responsive: true, plugins: { legend: { labels: { color: '#e6edf3' } } } }
     });
 
-    charts.pareto = new Chart(document.getElementById('paretoGeralChart'), {
-        type: 'pie',
-        data: { labels: [], datasets: [{ data: [], backgroundColor: ['#ea5455','#7367f0','#ff9f43','#28c76f','#00cfe8'] }]}
-    });
-
-    charts.inlaySp = new Chart(document.getElementById('inlaySpecificChart'), {
-        type: 'bar',
-        data: { labels: [], datasets: [{ label: 'Qtd Perdas Inlay', data: [], backgroundColor: '#ff9f43' }]},
-        options: { indexAxis: 'y' }
-    });
-
-    charts.cardSp = new Chart(document.getElementById('cardSpecificChart'), {
-        type: 'bar',
-        data: { labels: [], datasets: [{ label: 'Qtd Perdas Cartão', data: [], backgroundColor: '#28c76f' }]},
-        options: { indexAxis: 'y' }
-    });
+    charts.prod = config(document.getElementById('prodChart'), 'line');
+    charts.yield = config(document.getElementById('yieldChart'), 'line');
+    charts.pInlay = config(document.getElementById('paretoInlay'), 'bar');
+    charts.pCard = config(document.getElementById('paretoCard'), 'bar');
 }
 
-document.getElementById('fileIn').addEventListener('change', async (e) => {
+// O MOTOR DE VARREDURA PROFUNDA (DEEP SCAN)
+document.getElementById('fileInput').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
-    for (let file of files) {
-        const data = await file.arrayBuffer();
+    document.getElementById('fileList').innerHTML = files.map(f => `📄 ${f.name}`).join('<br>');
+    
+    for (let f of files) {
+        const data = await f.arrayBuffer();
         const wb = XLSX.read(data);
-        wb.SheetNames.forEach(name => {
-            const json = XLSX.utils.sheet_to_json(wb.Sheets[name]);
-            processArchitecture(json, name.toUpperCase());
+        
+        wb.SheetNames.forEach(sheetName => {
+            const json = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: 0 });
+            deepSearch(json, sheetName.toUpperCase());
         });
     }
-    renderAll();
+    renderUI();
 });
 
-function processArchitecture(rows, sheetName) {
+function deepSearch(rows, source) {
     rows.forEach(r => {
-        const qtd = Number(r["QUANTIDADE PRODUZIDA"] || r["QUANTIDADE"] || r["QUANT. EXPEDIDA"] || 0);
-        const loss = Number(r["TOTAL DE PERDAS"] || r["TOTAL DE ERROS"] || r["TOTAL DE PERDAS DO PROCESSO"] || 0);
-        const mesIdx = ["JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO","JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"].indexOf((r["MÊS"] || "").toUpperCase());
-
-        // IDENTIFICAÇÃO DE DNA (Inlay vs Cartão)
-        const isInlay = sheetName.includes("INLAY") || r["LOTE"] || r["PICK AND PLACE"];
+        // 1. Tenta encontrar valores de produção em qualquer coluna provável
+        const qtd = Number(r["QUANTIDADE PRODUZIDA"] || r["QUANTIDADE"] || r["QUANT. EXPEDIDA"] || r["QUANT. PRODUZIDA"] || 0);
+        const perdas = Number(r["TOTAL DE PERDAS"] || r["PERDAS TOTAIS"] || r["TOTAL DE ERROS"] || r["TOTAL"] || 0);
         
-        if (isInlay) {
-            store.inlay.vol += qtd;
-            store.inlay.loss += loss;
-            if(mesIdx > -1) store.inlay.monthly[mesIdx] += qtd;
-            ["PICK AND PLACE", "CHIP MORTO", "SOLDA", "TESTE 1", "ANTENA"].forEach(c => {
-                if(r[c]) store.inlay.causes[c] = (store.inlay.causes[c] || 0) + Number(r[c]);
-            });
-        } else {
-            store.card.vol += qtd;
-            store.card.loss += loss;
-            if(mesIdx > -1) store.card.monthly[mesIdx] += qtd;
-            ["BOLHA", "IMPUREZAS", "ERRO DE ESQUADRO", "MANCHA", "RISCO", "DEFORMAÇÃO"].forEach(c => {
-                if(r[c]) store.card.causes[c] = (store.card.causes[c] || 0) + Number(r[c]);
-            });
-        }
+        if (qtd === 0 && perdas === 0) return; // Pula linhas vazias
 
-        if (r["Nº DA O.P."] || r["NÚMERO DA OP."] || r["LOTE"]) {
-            store.ops.push({
-                tipo: isInlay ? 'INLAY' : 'CARTÃO',
-                op: r["Nº DA O.P."] || r["NÚMERO DA OP."] || r["LOTE"],
-                setor: sheetName,
-                modelo: r["MODELO"] || r["CLIENTE/MODELO"] || "---",
-                prod: qtd,
-                perda: loss,
-                perc: qtd > 0 ? (loss/qtd*100).toFixed(2) : 0
-            });
-        }
+        // 2. LÓGICA DE SEGREGAÇÃO RÍGIDA
+        // Se a aba contém "INLAY" ou se existem colunas específicas de Inlay
+        const isInlay = source.includes("INLAY") || r["PICK AND PLACE"] !== undefined || r["LOTE"] !== undefined || r["CHIP MORTO"] !== undefined;
+        
+        const target = isInlay ? dataStore.inlay : dataStore.card;
+        const mesStr = (r["MÊS"] || r["DATA"] || "").toString().toUpperCase();
+        const mesIdx = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"].findIndex(m => mesStr.includes(m));
+
+        target.vol += qtd;
+        target.loss += perdas;
+        if (mesIdx !== -1) target.monthly[mesIdx] += qtd;
+
+        // 3. MAPEAMENTO DETALHADO DE PERDAS (PARETO)
+        const colunasPerda = [
+            "BOLHA", "IMPUREZAS", "CHIP DEFEITUOSO", "CHIP MORTO", "PICK AND PLACE", 
+            "SOLDA", "MANCHA", "RISCO", "ERRO DE ESQUADRO", "DEFORMAÇÃO", 
+            "DELAMINAÇÃO", "FALHA DE IMPRESSÃO", "POSIÇÃO ERRADA DO CHIP"
+        ];
+
+        let topCausa = "Outros";
+        let maxVal = 0;
+
+        colunasPerda.forEach(col => {
+            if (r[col] && Number(r[col]) > 0) {
+                const val = Number(r[col]);
+                target.details[col] = (target.details[col] || 0) + val;
+                if (val > maxVal) { maxVal = val; topCausa = col; }
+            }
+        });
+
+        // 4. ARMAZENAMENTO PARA AUDITORIA
+        dataStore.raw.push({
+            tipo: isInlay ? 'INLAY' : 'CARTÃO',
+            op: r["Nº DA O.P."] || r["NÚMERO DA OP."] || r["LOTE"] || "N/A",
+            modelo: r["MODELO"] || r["CLIENTE/MODELO"] || "---",
+            qtd: qtd,
+            perda: perdas,
+            perc: qtd > 0 ? (perdas/qtd*100).toFixed(2) : 0,
+            causa: topCausa,
+            aba: source
+        });
     });
 }
 
-function renderAll() {
-    // KPIs
-    document.getElementById('k_in_vol').innerText = store.inlay.vol.toLocaleString();
-    document.getElementById('k_cd_vol').innerText = store.card.vol.toLocaleString();
+function renderUI() {
+    // Atualiza KPIs
+    document.getElementById('kpi_inlay_vol').innerText = dataStore.inlay.vol.toLocaleString();
+    document.getElementById('kpi_inlay_loss').innerText = dataStore.inlay.loss.toLocaleString() + " unidades";
+    document.getElementById('kpi_card_vol').innerText = dataStore.card.vol.toLocaleString();
+    document.getElementById('kpi_card_loss').innerText = dataStore.card.loss.toLocaleString() + " unidades";
     
-    const qualTotal = 100 - (((store.inlay.loss + store.card.loss) / (store.inlay.vol + store.card.vol)) * 100);
-    document.getElementById('k_qual').innerText = qualTotal.toFixed(1) + "%";
-    document.getElementById('k_disp').innerText = "94.2%"; // Simulação baseada em volume/capacidade
+    document.getElementById('kpi_inlay_yield').innerText = dataStore.inlay.vol > 0 ? (100 - (dataStore.inlay.loss/dataStore.inlay.vol*100)).toFixed(2) + "%" : "0%";
+    document.getElementById('kpi_card_oee').innerText = dataStore.card.vol > 0 ? (100 - (dataStore.card.loss/dataStore.card.vol*100)).toFixed(2) + "%" : "0%";
 
-    // Charts
-    charts.prod.data.datasets[0].data = store.inlay.monthly;
-    charts.prod.data.datasets[1].data = store.card.monthly;
+    // Gráfico de Produção Mensal
+    charts.prod.data.labels = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    charts.prod.data.datasets = [
+        { label: 'Inlays', data: dataStore.inlay.monthly, borderColor: '#ff9f43', backgroundColor: '#ff9f43', tension: 0.4 },
+        { label: 'Cartões', data: dataStore.card.monthly, borderColor: '#2ea043', backgroundColor: '#2ea043', tension: 0.4 }
+    ];
     charts.prod.update();
 
-    charts.inlaySp.data.labels = Object.keys(store.inlay.causes);
-    charts.inlaySp.data.datasets[0].data = Object.values(store.inlay.causes);
-    charts.inlaySp.update();
+    // Paretos Específicos
+    const updatePareto = (chart, details, color) => {
+        const sorted = Object.entries(details).sort((a,b) => b[1] - a[1]).slice(0, 8);
+        chart.data.labels = sorted.map(i => i[0]);
+        chart.data.datasets = [{ label: 'Qtd de Falhas', data: sorted.map(i => i[1]), backgroundColor: color }];
+        chart.update();
+    };
 
-    charts.cardSp.data.labels = Object.keys(store.card.causes);
-    charts.cardSp.data.datasets[0].data = Object.values(store.card.causes);
-    charts.cardSp.update();
+    updatePareto(charts.pInlay, dataStore.inlay.details, '#ff9f43');
+    updatePareto(charts.pCard, dataStore.card.details, '#2ea043');
 
-    const allCauses = {...store.inlay.causes, ...store.card.causes};
-    charts.pareto.data.labels = Object.keys(allCauses).slice(0,5);
-    charts.pareto.data.datasets[0].data = Object.values(allCauses).slice(0,5);
-    charts.pareto.update();
-
-    // Tabela
-    document.getElementById('tableBody').innerHTML = store.ops.slice(-30).reverse().map(o => `
+    // Tabela de Auditoria (Ordenada por maior perda %)
+    const tbody = document.getElementById('auditTable');
+    tbody.innerHTML = dataStore.raw.sort((a,b) => b.perc - a.perc).slice(0, 50).map(o => `
         <tr>
-            <td><span class="tag ${o.tipo == 'INLAY' ? 'tag-inlay' : 'tag-card'}">${o.tipo}</span></td>
+            <td><span class="type-tag ${o.tipo === 'INLAY' ? 'tag-inlay' : 'tag-card'}">${o.tipo}</span></td>
             <td>${o.op}</td>
-            <td>${o.setor}</td>
             <td>${o.modelo}</td>
-            <td>${o.prod.toLocaleString()}</td>
+            <td>${o.qtd.toLocaleString()}</td>
             <td style="color:var(--danger)">${o.perda}</td>
-            <td>${o.perc}%</td>
-            <td><div style="width:50px; height:8px; background:#21262d; border-radius:4px"><div style="width:${Math.min(o.perc*5, 100)}%; height:100%; background:${o.perc > 5 ? 'var(--danger)' : 'var(--card)'}; border-radius:4px"></div></div></td>
+            <td><b>${o.perc}%</b></td>
+            <td>${o.causa}</td>
+            <td><small>${o.aba}</small></td>
         </tr>
     `).join('');
 }
