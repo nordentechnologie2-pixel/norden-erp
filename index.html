@@ -2,169 +2,186 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>NORDEN | ULTRA-BI INDUSTRIAL ERP</title>
+    <title>NORDEN ERP | MASTER BI INDUSTRIAL</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0a0c10; --surface: #12151d; --accent: #00f2ff; --text: #f0f6fc; --border: #30363d; --card-h: #1c2128; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; overflow: hidden; height: 100vh; }
+        :root { --bg: #0d1117; --card: #161b22; --accent: #2f81f7; --inlay-color: #f0883e; --card-color: #3fb950; --danger: #f85149; --text: #c9d1d9; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; }
         
-        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
-        .main { flex: 1; overflow-y: auto; padding: 30px; }
+        .sidebar { width: 280px; background: #010409; border-right: 1px solid #30363d; padding: 20px; display: flex; flex-direction: column; }
+        .main { flex: 1; overflow-y: auto; padding: 30px; background: radial-gradient(circle at top right, #161b22, #0d1117); }
         
-        /* Dash Design */
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
-        .kpi-box { background: var(--card-h); padding: 25px; border-radius: 12px; border-left: 5px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        .kpi-box h4 { margin: 0; color: #8b949e; font-size: 0.8rem; text-transform: uppercase; }
-        .kpi-box .val { font-size: 2.2rem; font-weight: 800; margin: 10px 0; display: block; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 25px; }
+        .upload-area { background: #1f242c; border: 2px dashed var(--accent); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; margin-bottom: 20px; }
         
-        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
-        .chart-container { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 15px; }
+        .kpi-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .kpi-card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid #30363d; }
+        .kpi-card h4 { margin: 0; color: #8b949e; font-size: 0.75rem; text-transform: uppercase; }
+        .kpi-card .big-num { font-size: 2rem; font-weight: 800; display: block; margin: 10px 0; }
+        .kpi-card .perc-label { font-size: 0.85rem; font-weight: 700; }
+
+        .chart-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .chart-box { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #30363d; }
         
-        /* Tabela Industrial */
-        .status-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 10px; overflow: hidden; font-size: 0.85rem; }
-        .status-table th { background: #161b22; padding: 15px; text-align: left; color: var(--accent); }
-        .status-table td { padding: 12px; border-bottom: 1px solid var(--border); }
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
-        .tag-prod { background: #23863622; color: #3fb950; border: 1px solid #238636; }
+        .data-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; margin-top: 20px; font-size: 0.8rem; }
+        .data-table th { background: #21262d; color: var(--accent); padding: 12px; text-align: left; }
+        .data-table td { padding: 10px; border-bottom: 1px solid #30363d; }
         
-        .btn-update { background: var(--accent); color: #000; border: none; padding: 12px 25px; border-radius: 6px; font-weight: 800; cursor: pointer; float: right; }
+        .btn-sync { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h2 style="color:var(--accent)">NORDEN ERP</h2>
-    <p style="font-size:0.7rem; color:#8b949e">BI VERSION 7.0 - EXECUTIVE</p>
-    <div style="margin-top:40px">
-        <p>🟢 Dashboard Macro</p>
-        <p>⚪ Produção Detalhada</p>
-        <p>⚪ Custos & Perdas</p>
-        <p>⚪ Histórico 2020-2026</p>
+    <h1 style="font-family: 'Roboto Condensed'; color: white; letter-spacing: 2px;">NORDEN <span style="color:var(--accent)">SYSTEM</span></h1>
+    <p style="font-size: 0.7rem; color: #8b949e;">ERP & BI v8.0 INDUSTRIAL MASTER</p>
+    <div style="margin-top:30px">
+        <h3 style="font-size:0.9rem; color:var(--accent)">PAINÉIS ATIVOS:</h3>
+        <p>📊 Produção de Inlays</p>
+        <p>💳 Produção de Cartões</p>
+        <p>⚠️ Pareto de Perdas (%)</p>
+        <p>📈 Crescimento 2020-2026</p>
+        <p>🏭 Status por Setor/OP</p>
     </div>
 </div>
 
 <div class="main">
-    <button class="btn-update" onclick="document.getElementById('input').click()">SINCRONIZAR DADOS</button>
-    <input type="file" id="input" multiple style="display:none">
-    
-    <h1>Executive Overview <span id="periodoDisplay" style="color:var(--accent); font-size: 1.2rem;">| Selecione os arquivos</span></h1>
-
-    <div class="grid-3">
-        <div class="kpi-box"><h4>Produção Inlays (Ano)</h4><span class="val" id="k_inlay">0</span><small id="p_inlay">0% do Mix</small></div>
-        <div class="kpi-box"><h4>Produção Cartões (Ano)</h4><span class="val" id="k_card">0</span><small id="p_card">0% do Mix</small></div>
-        <div class="kpi-box" style="border-left-color: var(--danger)"><h4>Perda Global (Pareto)</h4><span class="val" id="k_loss">0%</span><small id="t_loss">0 unidades total</small></div>
+    <div class="header">
+        <h2>ERP MACRO: Riqueza de Detalhes Produtivos</h2>
+        <button class="btn-sync" onclick="document.getElementById('f').click()">SINCRONIZAR PLANILHAS</button>
+        <input type="file" id="f" multiple style="display:none">
     </div>
 
-    <div class="chart-grid">
-        <div class="chart-container">
-            <h3>Produção Mensal: Inlays vs Cartões</h3>
-            <canvas id="prodChart"></canvas>
+    <div class="kpi-container">
+        <div class="kpi-card"><h4>Inlays Produzidos</h4><span class="big-num" id="k_inlay" style="color:var(--inlay-color)">0</span><span class="perc-label" id="p_inlay">0% do Volume Total</span></div>
+        <div class="kpi-card"><h4>Cartões Produzidos</h4><span class="big-num" id="k_card" style="color:var(--card-color)">0</span><span class="perc-label" id="p_card">0% do Volume Total</span></div>
+        <div class="kpi-card"><h4>Total Perdas (Volume)</h4><span class="big-num" id="k_loss_vol" style="color:var(--danger)">0</span><span class="perc-label" id="p_loss_perc">0% de Perda</span></div>
+        <div class="kpi-card"><h4>Crescimento (Média)</h4><span class="big-num" style="color:white">9,24%</span><span class="perc-label">Histórico Anual</span></div>
+    </div>
+
+    <div class="chart-section">
+        <div class="chart-box">
+            <h3>Produção Mensal: Quantidades Reais</h3>
+            <canvas id="mainProdChart"></canvas>
         </div>
-        <div class="chart-container">
-            <h3>Pareto de Perdas (Frequência & Porcentagem)</h3>
+        <div class="chart-box">
+            <h3>Mix Produtivo (% Inlay vs % Cartão)</h3>
+            <canvas id="mixChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-section">
+        <div class="chart-box">
+            <h3>Pareto de Perdas Detalhado (Qtd e %)</h3>
             <canvas id="paretoChart"></canvas>
         </div>
+        <div class="chart-box">
+            <h3>Comparativo de Crescimento (2020-2026)</h3>
+            <canvas id="growthChart"></canvas>
+        </div>
     </div>
 
-    <div class="chart-container" style="margin-bottom:30px">
-        <h3>Crescimento Comparativo 2020-2026 (%)</h3>
-        <canvas id="growthChart" height="80"></canvas>
-    </div>
-
-    <div class="chart-container">
-        <h3>Status Produtivo por Pedido (OP)</h3>
-        <table class="status-table">
+    <div class="chart-box">
+        <h3>Status Detalhado por Pedido (Ordem de Produção)</h3>
+        <table class="data-table">
             <thead>
                 <tr>
-                    <th>Nº DA OP</th>
+                    <th>Nº OP</th>
+                    <th>SETOR</th>
                     <th>CLIENTE/MODELO</th>
-                    <th>CHIP/FABRICANTE</th>
-                    <th>QTD PEDIDO</th>
-                    <th>PERDAS</th>
-                    <th>% PERDA</th>
+                    <th>CHIP</th>
+                    <th>PRODUZIDO</th>
+                    <th>PERDAS (QTD)</th>
+                    <th>PERDAS (%)</th>
                     <th>STATUS</th>
                 </tr>
             </thead>
-            <tbody id="opTable">
-                <tr><td colspan="7" style="text-align:center">Aguardando importação de planilhas...</td></tr>
+            <tbody id="tableBody">
+                <tr><td colspan="8" style="text-align:center; padding: 40px; color:#8b949e">Aguardando Importação de Dados...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-let globalData = { inlays: 0, cards: 0, losses: {}, ops: [], monthlyInlay: Array(12).fill(0), monthlyCard: Array(12).fill(0) };
+let dataStore = { inlays: 0, cards: 0, losses: {}, monthly: { i: Array(12).fill(0), c: Array(12).fill(0) }, ops: [] };
 let charts = {};
 
-function initCharts() {
-    const ctx1 = document.getElementById('prodChart').getContext('2d');
-    charts.prod = new Chart(ctx1, {
+function init() {
+    const commonOpts = { responsive: true, plugins: { legend: { labels: { color: '#c9d1d9' } } } };
+    
+    charts.main = new Chart(document.getElementById('mainProdChart'), {
         type: 'bar',
-        data: {
-            labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
-            datasets: [
-                { label: 'Inlays', data: [], backgroundColor: '#00f2ff' },
-                { label: 'Cartões', data: [], backgroundColor: '#238636' }
-            ]
-        }
+        data: { labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], datasets: [
+            { label: 'Inlays (Qtd)', data: [], backgroundColor: '#f0883e' },
+            { label: 'Cartões (Qtd)', data: [], backgroundColor: '#3fb950' }
+        ]}, options: commonOpts
     });
 
-    const ctx2 = document.getElementById('paretoChart').getContext('2d');
-    charts.pareto = new Chart(ctx2, {
-        type: 'bar',
-        data: { labels: [], datasets: [{ label: 'Qtd Perdas', data: [], backgroundColor: '#da3633' }] }
+    charts.mix = new Chart(document.getElementById('mixChart'), {
+        type: 'pie',
+        data: { labels: ['Inlays %', 'Cartões %'], datasets: [{ data: [50, 50], backgroundColor: ['#f0883e', '#3fb950'] }]}
     });
 
-    const ctx3 = document.getElementById('growthChart').getContext('2d');
-    charts.growth = new Chart(ctx3, {
+    charts.pareto = new Chart(document.getElementById('paretoChart'), {
+        type: 'bar',
+        data: { labels: [], datasets: [{ label: 'Qtd de Perda por Tipo', data: [], backgroundColor: '#f85149' }]},
+        options: { indexAxis: 'y' }
+    });
+
+    charts.growth = new Chart(document.getElementById('growthChart'), {
         type: 'line',
-        data: {
-            labels: ['2020','2021','2022','2023','2024','2025','2026'],
-            datasets: [{ label: 'Crescimento %', data: [0, 48, -5, 4, 31, 12, 0], borderColor: '#00f2ff', fill: true, backgroundColor: 'rgba(0,242,255,0.1)' }]
-        }
+        data: { labels: ['2020','2021','2022','2023','2024','2025','2026'], datasets: [
+            { label: 'Crescimento Real', data: [633238, 940785, 886082, 921839, 1216860, 1371748, 0], borderColor: '#2f81f7', tension: 0.3 }
+        ]}
     });
 }
 
-document.getElementById('input').addEventListener('change', async (e) => {
+document.getElementById('f').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
-    for (let f of files) {
-        const data = await f.arrayBuffer();
+    for (let file of files) {
+        const data = await file.arrayBuffer();
         const wb = XLSX.read(data);
-        wb.SheetNames.forEach(sn => processData(XLSX.utils.sheet_to_json(wb.Sheets[sn]), sn));
+        wb.SheetNames.forEach(name => {
+            const json = XLSX.utils.sheet_to_json(wb.Sheets[name]);
+            parseIndustrialData(json, name);
+        });
     }
-    updateDashboard();
+    renderUI();
 });
 
-function processData(rows, sheetName) {
+function parseIndustrialData(rows, sheetName) {
     rows.forEach(r => {
         let qtd = Number(r["QUANTIDADE PRODUZIDA"] || r["QUANT. EXPEDIDA"] || r["QUANTIDADE"] || 0);
-        let perdas = Number(r["TOTAL DE PERDAS"] || r["PERDAS TOTAIS"] || 0);
+        let perdas = Number(r["TOTAL DE PERDAS"] || r["PERDAS TOTAIS"] || r["TOTAL DE ERROS"] || 0);
         let mesStr = r["MÊS"] || "Janeiro";
         let mesIdx = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].indexOf(mesStr);
 
-        if(sheetName.includes("INLAY")) {
-            globalData.inlays += qtd;
-            if(mesIdx > -1) globalData.monthlyInlay[mesIdx] += qtd;
+        // Identificar se é Inlay ou Cartão pelo nome da planilha ou coluna
+        if (sheetName.toUpperCase().includes("INLAY") || r["LOTE"]) {
+            dataStore.inlays += qtd;
+            if(mesIdx > -1) dataStore.monthly.i[mesIdx] += qtd;
         } else {
-            globalData.cards += qtd;
-            if(mesIdx > -1) globalData.monthlyCard[mesIdx] += qtd;
+            dataStore.cards += qtd;
+            if(mesIdx > -1) dataStore.monthly.c[mesIdx] += qtd;
         }
 
-        // Mapeamento de Pareto Profundo
-        const colunasPerda = ["BOLHA","CHIP DEFEITUOSO","IMPUREZAS","INLAY DESLOCADO","CORTE FORA DE POSIÇÃO"];
-        colunasPerda.forEach(c => {
-            if(r[c]) globalData.losses[c] = (globalData.losses[c] || 0) + Number(r[c]);
+        // Mapear Todos os Tipos de Perda (Riqueza de Detalhes)
+        const tipos = ["BOLHA", "CHIP DEFEITUOSO", "INLAY DESLOCADO", "IMPUREZAS", "ERRO DE ESQUADRO", "MANCHA", "RISCO", "FALHA DE IMPRESSÃO"];
+        tipos.forEach(t => {
+            if(r[t]) dataStore.losses[t] = (dataStore.losses[t] || 0) + Number(r[t]);
         });
 
-        // Alimentar Tabela de Pedidos
-        if(r["Nº DA O.P."]) {
-            globalData.ops.push({
-                op: r["Nº DA O.P."],
-                cliente: r["CLIENTE/MODELO"] || r["MODELO"] || "---",
+        // Adicionar à Tabela de OPs
+        if (r["Nº DA O.P."] || r["NÚMERO DA OP."]) {
+            dataStore.ops.push({
+                op: r["Nº DA O.P."] || r["NÚMERO DA OP."],
+                setor: sheetName,
+                modelo: r["CLIENTE/MODELO"] || r["MODELO"] || "---",
                 chip: r["TIPO DE CHIP/FABRICANTE"] || "---",
-                qtd: qtd,
+                prod: qtd,
                 perda: perdas,
                 perc: qtd > 0 ? ((perdas/qtd)*100).toFixed(2) : 0
             });
@@ -172,37 +189,51 @@ function processData(rows, sheetName) {
     });
 }
 
-function updateDashboard() {
-    document.getElementById('k_inlay').innerText = globalData.inlays.toLocaleString();
-    document.getElementById('k_card').innerText = globalData.cards.toLocaleString();
+function renderUI() {
+    document.getElementById('k_inlay').innerText = dataStore.inlays.toLocaleString();
+    document.getElementById('k_card').innerText = dataStore.cards.toLocaleString();
     
-    let totalL = Object.values(globalData.losses).reduce((a, b) => a + b, 0);
-    document.getElementById('k_loss').innerText = ((totalL / globalData.cards)*100).toFixed(2) + "%";
-    document.getElementById('t_loss').innerText = totalL.toLocaleString() + " perdas totais";
+    let totalPerda = Object.values(dataStore.losses).reduce((a,b) => a+b, 0);
+    document.getElementById('k_loss_vol').innerText = totalPerda.toLocaleString();
+    document.getElementById('p_loss_perc').innerText = dataStore.cards > 0 ? ((totalPerda/dataStore.cards)*100).toFixed(2) + "% de Perda" : "0%";
 
-    charts.prod.data.datasets[0].data = globalData.monthlyInlay;
-    charts.prod.data.datasets[1].data = globalData.monthlyCard;
-    charts.prod.update();
+    // Proporções
+    let totalVolume = dataStore.inlays + dataStore.cards;
+    document.getElementById('p_inlay').innerText = ((dataStore.inlays/totalVolume)*100).toFixed(1) + "% do Volume";
+    document.getElementById('p_card').innerText = ((dataStore.cards/totalVolume)*100).toFixed(1) + "% do Volume";
 
-    charts.pareto.data.labels = Object.keys(globalData.losses);
-    charts.pareto.data.datasets[0].data = Object.values(globalData.losses);
+    // Gráficos
+    charts.main.data.datasets[0].data = dataStore.monthly.i;
+    charts.main.data.datasets[1].data = dataStore.monthly.c;
+    charts.main.update();
+
+    charts.mix.data.datasets[0].data = [dataStore.inlays, dataStore.cards];
+    charts.mix.update();
+
+    charts.pareto.data.labels = Object.keys(dataStore.losses);
+    charts.pareto.data.datasets[0].data = Object.values(dataStore.losses);
     charts.pareto.update();
 
-    const tbody = document.getElementById('opTable');
-    tbody.innerHTML = globalData.ops.slice(0, 15).map(o => `
+    charts.growth.data.datasets[0].data[6] = dataStore.cards;
+    charts.growth.update();
+
+    // Tabela
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = dataStore.ops.slice(0, 20).map(o => `
         <tr>
-            <td>${o.op}</td>
-            <td>${o.cliente}</td>
+            <td><b>${o.op}</b></td>
+            <td>${o.setor}</td>
+            <td>${o.modelo}</td>
             <td>${o.chip}</td>
-            <td>${o.qtd}</td>
-            <td style="color:#da3633">${o.perda}</td>
+            <td>${o.prod.toLocaleString()}</td>
+            <td style="color:var(--danger)">${o.perda.toLocaleString()}</td>
             <td>${o.perc}%</td>
-            <td><span class="tag tag-prod">CONCLUÍDO</span></td>
+            <td><span style="background:rgba(63,185,80,0.2); color:#3fb950; padding:3px 8px; border-radius:4px; font-size:10px">FINALIZADO</span></td>
         </tr>
     `).join('');
 }
 
-initCharts();
+init();
 </script>
 </body>
 </html>
