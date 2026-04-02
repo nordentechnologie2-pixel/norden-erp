@@ -2,159 +2,175 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>NORDEN | PROFESSIONAL BI v14.1</title>
+    <title>NORDEN | MASTER BI v15</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #0d1117; --panel: #161b22; --inlay: #ff9f43; --card: #2ea043; --danger: #f85149; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #c9d1d9; margin: 0; display: flex; height: 100vh; }
-        .sidebar { width: 320px; background: #010409; border-right: 1px solid #30363d; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #c9d1d9; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 320px; background: #010409; border-right: 1px solid #30363d; padding: 30px; display: flex; flex-direction: column; gap: 15px; }
         .main { flex: 1; overflow-y: auto; padding: 30px; }
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .kpi-card { background: var(--panel); border: 1px solid #30363d; padding: 20px; border-radius: 12px; border-top: 4px solid #30363d; }
-        .kpi-card small { color: #8b949e; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+        .kpi-card { background: var(--panel); border: 1px solid #30363d; padding: 20px; border-radius: 12px; border-top: 4px solid #8b949e; }
+        .kpi-card small { color: #8b949e; font-size: 0.7rem; font-weight: bold; }
         .kpi-card div { font-size: 1.8rem; font-weight: 900; margin-top: 5px; }
         .btn-import { background: #238636; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: 900; cursor: pointer; }
         .panel { background: var(--panel); border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         th { text-align: left; padding: 12px; color: #8b949e; border-bottom: 2px solid #30363d; }
         td { padding: 10px; border-bottom: 1px solid #21262d; }
-        #loader { display: none; color: var(--inlay); font-weight: bold; margin-bottom: 10px; }
+        .loading-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; justify-content:center; align-items:center; flex-direction:column; }
     </style>
 </head>
 <body>
 
+<div id="loader" class="loading-overlay">
+    <div style="border: 5px solid #30363d; border-top: 5px solid var(--inlay); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
+    <p id="statusMsg" style="margin-top:20px; font-weight:900;">PROCESSANDO...</p>
+</div>
+
 <div class="sidebar">
-    <h1 style="color:white; margin:0;">NORDEN <span style="color:var(--inlay)">PRO</span></h1>
-    <div style="background:var(--inlay); color:black; padding:5px; font-size:0.6rem; font-weight:900; border-radius:4px; text-align:center;">VERSÃO 14.1 - INDUSTRIAL MASTER</div>
-    <p style="font-size:0.7rem; color:#8b949e">Motor de busca profunda ativado.</p>
-    
-    <div id="loader">⚡ PROCESSANDO DADOS...</div>
-    <button class="btn-import" onclick="document.getElementById('fileIn').click()">IMPORTAR AGORA</button>
+    <h1 style="color:white; margin:0;">NORDEN <span style="color:var(--inlay)">BI</span></h1>
+    <div style="background:var(--card); color:white; padding:5px; font-size:0.6rem; font-weight:900; border-radius:4px; text-align:center;">V15.0 - ENGINE DE EXTRAÇÃO PROFUNDA</div>
+    <br>
+    <button class="btn-import" onclick="document.getElementById('fileIn').click()">IMPORTAR PLANILHAS</button>
     <input type="file" id="fileIn" multiple style="display:none">
-    
-    <div id="fileList" style="font-size:0.65rem; color:var(--card); max-height:200px; overflow-y:auto"></div>
+    <div id="fileLog" style="font-size:0.6rem; color:#8b949e; margin-top:10px;"></div>
 </div>
 
 <div class="main">
     <div class="kpi-grid">
-        <div class="kpi-card" style="border-top-color:var(--inlay)"><small>Produção Inlays</small><div id="k_inlay">0</div></div>
-        <div class="kpi-card" style="border-top-color:var(--card)"><small>Produção Cartões</small><div id="k_card">0</div></div>
-        <div class="kpi-card" style="border-top-color:var(--danger)"><small>Total Perdas</small><div id="k_loss">0</div></div>
-        <div class="kpi-card"><small>Rendimento Global</small><div id="k_yield">0%</div></div>
+        <div class="kpi-card" style="border-top-color:var(--inlay)"><small>PRODUÇÃO INLAY</small><div id="k_inlay">0</div></div>
+        <div class="kpi-card" style="border-top-color:var(--card)"><small>PRODUÇÃO CARTÃO</small><div id="k_card">0</div></div>
+        <div class="kpi-card" style="border-top-color:var(--danger)"><small>PERDA TOTAL (VOLUME)</small><div id="k_loss">0</div></div>
+        <div class="kpi-card"><small>RENDIMENTO (YIELD)</small><div id="k_yield">0%</div></div>
     </div>
 
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px">
-        <div class="panel"><h3>Perdas Inlay (Pareto)</h3><canvas id="c_inlay"></canvas></div>
-        <div class="panel"><h3>Perdas Cartão (Pareto)</h3><canvas id="c_card"></canvas></div>
+        <div class="panel"><h3>Motivos de Perda: Inlay</h3><canvas id="chartInlay"></canvas></div>
+        <div class="panel"><h3>Motivos de Perda: Cartão</h3><canvas id="chartCard"></canvas></div>
     </div>
 
     <div class="panel">
-        <h3>Auditoria de Produção Detalhada</h3>
+        <h3>Histórico de OPs e Relatórios Processados</h3>
         <table>
-            <thead><tr><th>TIPO</th><th>OP/LOTE</th><th>MODELO</th><th>PRODUZIDO</th><th>PERDA</th><th>%</th></tr></thead>
-            <tbody id="auditBody"></tbody>
+            <thead><tr><th>TIPO</th><th>OP / DATA</th><th>MODELO / DESCRIÇÃO</th><th>QUANT.</th><th>PERDA</th><th>%</th></tr></thead>
+            <tbody id="auditTable"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-let state = { inlay: { v:0, l:0, r:{} }, card: { v:0, l:0, r:{} }, ops: [] };
+let dataStore = { inlay: { v:0, l:0, r:{} }, card: { v:0, l:0, r:{} }, log: [] };
 let charts = {};
 
 function initCharts() {
-    const opt = (c) => ({ type:'bar', data:{ labels:[], datasets:[{data:[], backgroundColor:c}] }, options:{ indexAxis:'y', plugins:{legend:{display:false}} } });
-    charts.in = new Chart(document.getElementById('c_inlay'), opt('#ff9f43'));
-    charts.cd = new Chart(document.getElementById('c_card'), opt('#2ea043'));
+    const cfg = (c) => ({ type:'bar', data:{ labels:[], datasets:[{data:[], backgroundColor:c, borderRadius:5}] }, options:{ indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, grid:{color:'#30363d'}}, y:{grid:{display:false}}} } });
+    charts.in = new Chart(document.getElementById('chartInlay'), cfg('#ff9f43'));
+    charts.cd = new Chart(document.getElementById('chartCard'), cfg('#2ea043'));
 }
 
 document.getElementById('fileIn').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
-    document.getElementById('loader').style.display = 'block';
+    const loader = document.getElementById('loader');
+    loader.style.display = 'flex';
     
-    for (let f of files) {
-        document.getElementById('fileList').innerHTML += `• ${f.name}<br>`;
-        const data = await f.arrayBuffer();
-        const wb = XLSX.read(data, { type: 'array', cellDates: true });
-        
-        wb.SheetNames.forEach(sn => {
-            const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], { defval: 0 });
-            analyze(rows, sn.toUpperCase());
-        });
+    for (let file of files) {
+        document.getElementById('statusMsg').innerText = `LENDO: ${file.name}`;
+        try {
+            const buffer = await file.arrayBuffer();
+            const workbook = XLSX.read(buffer, { type:'array', cellDates:true });
+            
+            workbook.SheetNames.forEach(sheetName => {
+                const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: "" });
+                processSheet(json, sheetName.toUpperCase(), file.name.toUpperCase());
+            });
+        } catch (err) {
+            console.error("Erro no arquivo", file.name, err);
+        }
     }
     
-    updateUI();
-    document.getElementById('loader').style.display = 'none';
+    renderUI();
+    loader.style.display = 'none';
 });
 
-function analyze(rows, sheetName) {
-    rows.forEach(r => {
-        // Normalização de chaves (Mapeia colunas mesmo com nomes zangados)
-        const keys = Object.keys(r);
-        const getV = (str) => {
-            const k = keys.find(key => key.toUpperCase().includes(str));
-            return k ? Number(r[k]) : 0;
+function processSheet(rows, sheetName, fileName) {
+    rows.forEach(row => {
+        const keys = Object.keys(row);
+        
+        // Função de busca inteligente de valores numéricos
+        const parseNum = (terms) => {
+            const key = keys.find(k => terms.every(t => k.toUpperCase().includes(t)));
+            const val = key ? parseFloat(row[key]) : 0;
+            return isNaN(val) ? 0 : val;
         };
 
-        const prod = getV("QUANT") || getV("PROD") || getV("EXPED");
-        const loss = getV("PERDA") || getV("ERRO") || getV("REFUGO");
+        // Identificação de volume e perda
+        const qProd = parseNum(["QUANT"]) || parseNum(["PROD"]) || parseNum(["EXPED"]) || parseNum(["TOTAL"]);
+        const qLoss = parseNum(["PERDA"]) || parseNum(["ERRO"]) || parseNum(["REFUGO"]) || parseNum(["DEFEIT"]);
         
-        if (prod === 0 && loss === 0) return;
+        if (qProd === 0 && qLoss === 0) return;
 
-        // SEGREGAÇÃO RÍGIDA
-        const isInlay = sheetName.includes("INLAY") || keys.some(k => k.includes("PICK") || k.includes("CHIP"));
-        const target = isInlay ? state.inlay : state.card;
+        // SEGREGAÇÃO (Regra de Ouro v15)
+        const isCard = fileName.includes("CART") || sheetName.includes("CART") || fileName.includes("COMPARATIVO");
+        const target = isCard ? dataStore.card : dataStore.inlay;
 
-        target.v += prod;
-        target.l += loss;
+        target.v += qProd;
+        target.l += qLoss;
 
-        // MOTIVOS DE PERDA
-        const reasons = isInlay ? ["CHIP MORTO", "PICK AND PLACE", "SOLDA"] : ["BOLHA", "RISCO", "MANCHA", "IMPUREZA", "ESQUADRO"];
-        reasons.forEach(m => {
-            const val = getV(m);
-            if (val > 0) target.r[m] = (target.r[m] || 0) + val;
+        // MAPEAMENTO DE PARETO
+        const defects = isCard ? ["BOLHA", "RISCO", "MANCHA", "IMPUREZA", "ESQUADRO"] : ["CHIP", "PICK", "SOLDA", "ANTENA"];
+        defects.forEach(d => {
+            const dVal = parseNum([d]);
+            if (dVal > 0) target.r[d] = (target.r[d] || 0) + dVal;
         });
 
-        if (prod > 0) {
-            state.ops.push({
-                t: isInlay ? 'INLAY' : 'CARTÃO',
-                op: r["Nº DA O.P."] || r["LOTE"] || "---",
-                m: r["MODELO"] || r["CLIENTE/MODELO"] || "---",
-                q: prod,
-                p: loss
-            });
-        }
+        // REGISTRO NA TABELA
+        dataStore.log.push({
+            type: isCard ? 'CARTÃO' : 'INLAY',
+            op: row["Nº DA O.P."] || row["LOTE"] || row["DATA"] || "---",
+            mod: row["MODELO"] || row["CLIENTE"] || row["DESCRIÇÃO"] || "RELATÓRIO",
+            q: qProd,
+            p: qLoss
+        });
     });
 }
 
-function updateUI() {
-    document.getElementById('k_inlay').innerText = state.inlay.v.toLocaleString();
-    document.getElementById('k_card').innerText = state.card.v.toLocaleString();
-    document.getElementById('k_loss').innerText = (state.inlay.l + state.card.l).toLocaleString();
-    const yield = (100 - ((state.inlay.l + state.card.l) / (state.inlay.v + state.card.v) * 100)).toFixed(2);
-    document.getElementById('k_yield').innerText = isNaN(yield) ? "0%" : yield + "%";
+function renderUI() {
+    document.getElementById('k_inlay').innerText = dataStore.inlay.v.toLocaleString();
+    document.getElementById('k_card').innerText = dataStore.card.v.toLocaleString();
+    document.getElementById('k_loss').innerText = (dataStore.inlay.l + dataStore.card.l).toLocaleString();
+    
+    const totalV = dataStore.inlay.v + dataStore.card.v;
+    const totalL = dataStore.inlay.l + dataStore.card.l;
+    const yieldVal = totalV > 0 ? (100 - (totalL/totalV*100)).toFixed(2) : "0";
+    document.getElementById('k_yield').innerText = yieldVal + "%";
 
-    const upd = (chart, data) => {
-        const s = Object.entries(data).sort((a,b) => b[1]-a[1]);
-        chart.data.labels = s.map(x => x[0]);
-        chart.data.datasets[0].data = s.map(x => x[1]);
+    const updateChart = (chart, data) => {
+        const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
+        chart.data.labels = sorted.map(x => x[0]);
+        chart.data.datasets[0].data = sorted.map(x => x[1]);
         chart.update();
     };
-    upd(charts.in, state.inlay.r);
-    upd(charts.cd, state.card.r);
+    updateChart(charts.in, dataStore.inlay.r);
+    updateChart(charts.cd, dataStore.card.r);
 
-    document.getElementById('auditBody').innerHTML = state.ops.slice(-20).reverse().map(o => `
+    document.getElementById('auditTable').innerHTML = dataStore.log.slice(-30).reverse().map(i => `
         <tr>
-            <td style="color:${o.t === 'INLAY' ? 'var(--inlay)' : 'var(--card)'}"><b>${o.t}</b></td>
-            <td>${o.op}</td>
-            <td>${o.m}</td>
-            <td>${o.q.toLocaleString()}</td>
-            <td style="color:var(--danger)">${o.p}</td>
-            <td>${((o.p/o.q)*100).toFixed(1)}%</td>
+            <td style="color:${i.type === 'INLAY' ? 'var(--inlay)' : 'var(--card)'}"><b>${i.type}</b></td>
+            <td>${i.op}</td>
+            <td>${i.mod}</td>
+            <td>${i.q.toLocaleString()}</td>
+            <td style="color:var(--danger)">${i.p.toLocaleString()}</td>
+            <td>${i.q > 0 ? ((i.p/i.q)*100).toFixed(1) : 0}%</td>
         </tr>
     `).join('');
 }
+
+const style = document.createElement('style');
+style.innerHTML = `@keyframes spin { to { transform: rotate(360deg); } }`;
+document.head.appendChild(style);
 
 initCharts();
 </script>
